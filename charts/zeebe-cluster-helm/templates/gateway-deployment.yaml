@@ -70,7 +70,7 @@ spec:
             {{- end }}
           volumeMounts:
             {{- if .Values.gateway.log4j2 }}
-            - name: config
+            - name: config-gateway
               mountPath: /usr/local/zeebe/config/log4j2.xml
               subPath: gateway-log4j2.xml
             {{- end }}
@@ -86,10 +86,12 @@ spec:
             {{- toYaml .Values.gateway.resources | nindent 12 }}
           {{- end }}
       volumes:
-        - name: config
+        {{- if .Values.gateway.log4j2 }}
+        - name: config-gateway
           configMap:
-            name: {{ include "zeebe-cluster.fullname" . }}
+            name: {{ include "zeebe-cluster.fullname" . }}-gateway
             defaultMode: 0744
+        {{- end }}
 {{- with .Values.gateway.nodeSelector }}
       nodeSelector:
 {{ toYaml . | indent 8 }}

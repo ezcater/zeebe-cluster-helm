@@ -99,27 +99,28 @@ spec:
         resources:
           {{- toYaml .Values.resources | nindent 12 }}
         volumeMounts:
-        - name: config
-          mountPath: /usr/local/zeebe/config/application.yaml
-          subPath: application.yaml
-        - name: config
-          mountPath: /usr/local/bin/startup.sh
-          subPath: startup.sh
+        {{- if or .Values.zeebeCfg .Values.log4j2 }}
+        - name: config-broker
+          mountPath: /usr/local/zeebe/config
+        {{- end }}
+        - name: config-startup
+          mountPath: /usr/local/bin
         - name: data
           mountPath: /usr/local/zeebe/data
         - name: exporters
           mountPath: /exporters
-        {{- if .Values.log4j2 }}
-        - name: config
-          mountPath: /usr/local/zeebe/config/log4j2.xml
-          subPath: broker-log4j2.xml
-        {{- end }}
         securityContext:
           {{ toYaml .Values.podSecurityContext | indent 12 | trim }}
       volumes:
-      - name: config
+        {{- if or .Values.zeebeCfg .Values.log4j2 }}
+      - name: config-broker
         configMap:
-          name: {{ include "zeebe-cluster.fullname" . }}
+          name: {{ include "zeebe-cluster.fullname" . }}-broker
+          defaultMode: 0744
+        {{- end }}
+      - name: config-startup
+        configMap:
+          name: {{ include "zeebe-cluster.fullname" . }}-startup
           defaultMode: 0744
       - name: exporters
         emptyDir: {}    

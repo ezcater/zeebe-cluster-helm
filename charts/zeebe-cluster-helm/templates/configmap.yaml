@@ -1,7 +1,7 @@
 kind: ConfigMap
 metadata:
-  name: {{ include "zeebe-cluster.fullname" . }}
-  labels: 
+  name: {{ include "zeebe-cluster.fullname" . }}-startup
+  labels:
     {{- include "zeebe-cluster.labels" . | nindent 4 }}
 apiVersion: v1
 data:
@@ -25,30 +25,44 @@ data:
 
       export ZEEBE_BROKER_CLUSTER_INITIALCONTACTPOINTS="${contactPoints}"
     fi
-    
+
     if [ "$(ls -A /exporters/)" ]; then
       mkdir /usr/local/zeebe/exporters/
       cp -a /exporters/*.jar /usr/local/zeebe/exporters/
-    else  
+    else
       echo "No exporters available."
     fi
 
     exec /usr/local/zeebe/bin/broker
-
-  application.yaml: |
+---
+{{- if or .Values.zeebeCfg .Values.log4j2 }}
+kind: ConfigMap
+metadata:
+  name: {{ include "zeebe-cluster.fullname" . }}-broker
+  labels:
+    {{- include "zeebe-cluster.labels" . | nindent 4 }}
+apiVersion: v1
+data:
 {{- if .Values.zeebeCfg }}
+  application.yaml: |
 {{- with .Values.zeebeCfg }}
 {{ . | toYaml | indent 4 }}
 {{- end }}
 {{- end }}
-
-  broker-log4j2.xml: |
 {{- if .Values.log4j2 }}
+  log4j2.xml: |
     {{ .Values.log4j2 | indent 4 | trim }}
 {{- end }}
-
-  gateway-log4j2.xml: |
+{{- end }}
+---
 {{- if .Values.gateway.log4j2 }}
+kind: ConfigMap
+metadata:
+  name: {{ include "zeebe-cluster.fullname" . }}-gateway
+  labels:
+    {{- include "zeebe-cluster.labels" . | nindent 4 }}
+apiVersion: v1
+data:
+  log4j2.xml: |
     {{ .Values.gateway.log4j2 | indent 4 | trim }}
 {{- end }}
-
