@@ -38,6 +38,10 @@ data:
     fi
 
     exec /usr/local/zeebe/bin/broker
+
+  docker-java-home: |
+    #/bin/sh
+    echo "$JAVA_HOME"
 ---
 {{- if or .Values.zeebeCfg .Values.log4j2 }}
 kind: ConfigMap
