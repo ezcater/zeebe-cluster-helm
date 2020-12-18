@@ -101,7 +101,7 @@ spec:
         volumeMounts:
         {{- if or .Values.zeebeCfg .Values.log4j2 }}
         - name: config-broker
-          mountPath: /usr/local/zeebe/config
+          mountPath: /usr/local/zeebe/configmaps
         {{- end }}
         - name: config-startup
           mountPath: /usr/local/bin

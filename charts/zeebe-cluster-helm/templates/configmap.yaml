@@ -33,6 +33,10 @@ data:
       echo "No exporters available."
     fi
 
+    if [ "$(ls -A /usr/local/zeebe/configmaps/)" ]; then
+      cp -LRp /usr/local/zeebe/configmaps/* /usr/local/zeebe/config/
+    fi
+
     exec /usr/local/zeebe/bin/broker
 ---
 {{- if or .Values.zeebeCfg .Values.log4j2 }}
