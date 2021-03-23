@@ -1,7 +1,7 @@
 apiVersion: v2
 appVersion: "0.26.1"
 description: Zeebe Cluster Helm Chart for Kubernetes
-name: zeebe-cluster-helm
+name: zeebe-cluster
 type: application
 version: 0.1.2
 icon: https://zeebe.io/img/zeebe-logo.png
