@@ -89,17 +89,9 @@ spec:
           name: {{ default "command" .Values.serviceCommandName  }}
         - containerPort: {{ .Values.serviceInternalPort  }}
           name: {{ default "internal" .Values.serviceInternalName  }}
-        livenessProbe:
-          httpGet:
-            path: {{ .Values.livenessProbe.probePath }}
-            port: {{ .Values.serviceHttpPort }}
-          initialDelaySeconds: {{ .Values.livenessProbe.initialDelaySeconds }}
-          periodSeconds: {{ .Values.livenessProbe.periodSeconds }}
-          successThreshold: {{ .Values.livenessProbe.successThreshold }}
-          timeoutSeconds: {{ .Values.livenessProbe.timeoutSeconds }}
         readinessProbe:
           httpGet:
-            path: {{ .Values.readinessProbe.probePath }}
+            path: {{ .Values.probePath }}
             port: {{ .Values.serviceHttpPort }}
           periodSeconds: {{ .Values.readinessProbe.periodSeconds }}
           successThreshold: {{ .Values.readinessProbe.successThreshold }}

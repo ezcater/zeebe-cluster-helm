@@ -67,17 +67,10 @@ resources:
   limits:
     cpu: 1000m
     memory: 4Gi
-livenessProbe:
-  failureThreshold: 5
-  periodSeconds: 60
-  probePath: /health
-  successThreshold: 1
-  timeoutSeconds: 1
-  initialDelaySeconds: 3600
+probePath: /ready
 readinessProbe:
   failureThreshold: 1
   periodSeconds: 10
-  probePath: /ready
   successThreshold: 1
   timeoutSeconds: 1
 podDisruptionBudget:
