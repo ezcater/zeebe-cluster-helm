@@ -1,3 +1,5 @@
+[![Community Extension](https://img.shields.io/badge/Community%20Extension-An%20open%20source%20community%20maintained%20project-FF4700)](https://github.com/camunda-community-hub/community)[![Lifecycle: Incubating](https://img.shields.io/badge/Lifecycle-Incubating-blue)](https://github.com/Camunda-Community-Hub/community/blob/main/extension-lifecycle.md#incubating-)[![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
+
 # Zeebe Cluster Helm Chart
 
 This functionality is in beta and is subject to change. The design and code is less mature than official GA features and is provided as-is with no warranties. Beta features are not subject to the support SLA of official GA features.
@@ -5,7 +7,7 @@ This functionality is in beta and is subject to change. The design and code is l
 ## Requirements
 
 * [Helm](https://helm.sh/) >= 3.x + 
-* Kubernetes >= 1.17+
+* Kubernetes >= 1.18+
 * Minimum cluster requirements include the following to run this chart with default settings. All of these settings are configurable.
   * Three Kubernetes nodes to respect the default "hard" affinity settings
   * 1GB of RAM for the JVM heap
@@ -16,13 +18,13 @@ This functionality is in beta and is subject to change. The design and code is l
 * Add the official Zeebe helm charts repo
 
   ```shell
-  helm repo add zeebe https://helm.zeebe.io
+  helm repo add zeebe https://helm.camunda.io
   ```
 
 * Install it
 
   ```shell
-  helm install --name zeebe-cluster-helm zeebe/zeebe-cluster-helm
+  helm install zb zeebe/zeebe-cluster-helm
   ```
 
  ## Configuration
@@ -31,6 +33,7 @@ This functionality is in beta and is subject to change. The design and code is l
 | `labels`                 | labels to be applied to the StatefulSet and Service                                                                                                                                | `app: zeebe`                                                                                                           |
 | `annotations`                 | annotations to be applied to the StatefulSet and Service                                                                                                                                | ``                                                                                                           |
 | `podAnnotations`                 | annotations to be applied to the StatefulSet pod Template                                                                                                                                | ``                                                                                                           |
+| `global.elasticsearch.disableExporter`                 | Disable [Elasticsearch Exporter](https://github.com/camunda-cloud/zeebe/tree/develop/exporters/elasticsearch-exporter) in Zeebe                                                                                                                                | `false`                                                                                                           |
 | `elasticsearch.enabled`                 | Enable ElasticSearch deployment as part of the Zeebe Cluster                                                                                                                                | `true`                                                                                                           |
 | `kibana.enabled`                 | Enable Kibana deployment as part of the Zeebe Cluster                                                                                                                                | `false`                                                                                                           |
 | `prometheus.enabled`                 | Enable Prometheus operator as part of the Zeebe Cluster                                                                                                                          | `false`                                                                                                           |
