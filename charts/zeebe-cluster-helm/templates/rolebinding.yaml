@@ -1,0 +1,19 @@
+{{- if .Values.rbac.enabled }}
+kind: RoleBinding
+apiVersion: rbac.authorization.k8s.io/v1
+metadata:
+  name: {{ include "zeebe-cluster.names.broker" . }}
+  labels:
+    {{- include "zeebe-cluster.labels.broker" . | nindent 4 }}
+    {{- toYaml  .Values.labels | nindent 4 }}
+  annotations:
+    {{- toYaml  .Values.annotations | nindent 4 }}
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: {{ include "zeebe-cluster.names.broker" . }}
+subjects:
+  - kind: ServiceAccount
+    name: {{ include "zeebe-cluster.names.broker" . }}
+    namespace: {{ .Release.Namespace }}
+{{- end -}}

@@ -93,6 +93,22 @@ podDisruptionBudget:
   minAvailable:
   maxUnavailable: 1
 
+securityContext:
+  runAsUser: 0
+  runAsGroup: 0
+  fsGroup: 0
+podSecurityContext:
+  privileged: false
+  allowPrivilegeEscalation: false
+  capabilities:
+    drop:
+      - ALL
+serviceAccount:
+  create: true
+rbac:
+  enabled: true
+  pspEnabled: false
+
 nodeSelector: {}
 
 tolerations: []
