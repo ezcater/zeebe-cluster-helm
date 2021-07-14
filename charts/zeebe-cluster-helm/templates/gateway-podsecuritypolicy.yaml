@@ -1,0 +1,57 @@
+{{- if and .Values.gateway.rbac.enabled .Values.gateway.rbac.pspEnabled }}
+apiVersion: policy/v1beta1
+kind: PodSecurityPolicy
+metadata:
+  name: {{ include "zeebe-cluster.names.gateway" . }}
+  labels:
+    {{- include "zeebe-cluster.labels.gateway" . | nindent 4 }}
+spec:
+  privileged: false
+  allowPrivilegeEscalation: false
+  requiredDropCapabilities:
+    - ALL
+  volumes:
+    - 'configMap'
+    - 'emptyDir'
+    - 'projected'
+    - 'secret'
+    - 'downwardAPI'
+  hostNetwork: false
+  hostIPC: false
+  hostPID: false
+  runAsUser:
+    {{- if eq (int .Values.gateway.securityContext.runAsUser) 0 }}
+    rule: 'RunAsAny'
+    {{- else }}
+    rule: 'MustRunAs'
+    ranges:
+      - min: {{ .Values.gateway.securityContext.runAsUser }}
+        max: {{ .Values.gateway.securityContext.runAsUser }}
+    {{- end }}
+  runAsGroup:
+    {{- if eq (int .Values.gateway.securityContext.runAsGroup) 0 }}
+    rule: 'RunAsAny'
+    {{- else }}
+    rule: 'MustRunAs'
+    ranges:
+      - min: {{ .Values.gateway.securityContext.runAsGroup }}
+        max: {{ .Values.gateway.securityContext.runAsGroup }}
+    {{- end }}
+  seLinux:
+    rule: 'RunAsAny'
+  supplementalGroups:
+    rule: 'MustRunAs'
+    ranges:
+      - min: 1
+        max: 65535
+  fsGroup:
+    {{- if eq (int .Values.gateway.securityContext.fsGroup) 0 }}
+    rule: 'RunAsAny'
+    {{- else }}
+    rule: 'MustRunAs'
+    ranges:
+      - min: {{ .Values.gateway.securityContext.fsGroup }}
+        max: {{ .Values.gateway.securityContext.fsGroup }}
+    {{- end }}
+  readOnlyRootFilesystem: {{ .Values.gateway.podSecurityContext.readOnlyRootFilesystem | default false }}
+  {{- end }}
