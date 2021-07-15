@@ -1,0 +1,18 @@
+{{- if .Values.gateway.rbac.enabled }}
+kind: RoleBinding
+apiVersion: rbac.authorization.k8s.io/v1
+metadata:
+  name: {{ include "zeebe-cluster.names.gateway" . }}
+  labels:
+    {{- include "zeebe-cluster.labels.gateway" . | nindent 4 }}
+  annotations:
+    {{- toYaml  .Values.annotations | nindent 4 }}
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: {{ include "zeebe-cluster.names.gateway" . }}
+subjects:
+  - kind: ServiceAccount
+    name: {{ include "zeebe-cluster.names.gateway" . }}
+    namespace: {{ .Release.Namespace }}
+{{- end -}}

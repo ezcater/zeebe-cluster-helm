@@ -1,0 +1,21 @@
+{{- if .Values.gateway.rbac.enabled }}
+kind: Role
+apiVersion: rbac.authorization.k8s.io/v1
+metadata:
+  name: {{ include "zeebe-cluster.names.gateway" . }}
+  labels:
+    {{- include "zeebe-cluster.labels.gateway" . | nindent 4 }}
+  annotations:
+    {{- toYaml  .Values.annotations | nindent 4 }}
+rules:
+{{- if .Values.gateway.rbac.pspEnabled }}
+  - apiGroups:
+      - extensions
+    resourceNames:
+      - {{ include "zeebe-cluster.names.gateway" . }}
+    resources:
+      - podsecuritypolicies
+    verbs:
+      - use
+{{- end -}}
+{{- end -}}

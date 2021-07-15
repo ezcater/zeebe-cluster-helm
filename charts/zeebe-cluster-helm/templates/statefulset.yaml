@@ -110,7 +110,7 @@ spec:
         - name: exporters
           mountPath: /exporters
         securityContext:
-          {{ toYaml .Values.podSecurityContext | indent 12 | trim }}
+          {{ toYaml .Values.podSecurityContext | indent 10 | trim }}
       volumes:
         {{- if or .Values.zeebeCfg .Values.log4j2 }}
       - name: config-broker
@@ -134,6 +134,13 @@ spec:
 {{- end }}
 {{- with .Values.tolerations }}
       tolerations:
+{{ toYaml . | indent 8 }}
+{{- end }}
+{{- if .Values.serviceAccount.create}}
+      serviceAccountName: {{ include "zeebe-cluster.names.broker" . }}
+{{- end }}
+{{- with .Values.securityContext }}
+      securityContext:
 {{ toYaml . | indent 8 }}
 {{- end }}
   volumeClaimTemplates:
