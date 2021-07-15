@@ -1,0 +1,26 @@
+{{ if .Values.gateway.ingress.enabled }}
+apiVersion: networking.k8s.io/v1beta1
+kind: Ingress
+metadata:
+  name: {{ include "zeebe-cluster.names.gateway" . }}
+  labels:
+    {{- include "zeebe-cluster.labels.gateway" . | nindent 4 }}
+    {{- if .Values.gateway.ingress.labels }}
+    {{- toYaml  .Values.gateway.ingress.labels | nindent 4 }}
+    {{- end }}
+  annotations:
+    {{- toYaml .Values.gateway.ingress.annotations | nindent 4 }}
+spec:
+  rules:
+  - host: {{ .Values.gateway.ingress.hostName }}
+    http:
+      paths:
+      - backend:
+          serviceName: {{ include "zeebe-cluster.names.gateway" . }}
+          servicePort: {{ .Values.serviceHttpPort }}
+        path: /
+      - backend:
+          serviceName: {{ include "zeebe-cluster.names.gateway" . }}
+          servicePort: {{ .Values.serviceGatewayPort }}
+        path: /
+{{ end }}
