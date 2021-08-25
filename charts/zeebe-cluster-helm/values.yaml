@@ -24,6 +24,10 @@ env: []
 logLevel: info
 
 gateway:
+  ingress:
+    enabled: false
+    hostName:
+    labels: {}
   replicas: 1
   logLevel: info
   env: []
