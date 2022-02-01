@@ -8,7 +8,7 @@ metadata:
   annotations:
     {{- range $key, $value := .Values.annotations }}
     {{ $key }}: {{ $value | quote }}
-    {{- end }}   
+    {{- end }}
 spec:
   replicas: {{ .Values.clusterSize  }}
   selector:
@@ -28,17 +28,26 @@ spec:
       annotations:
         {{- range $key, $value := .Values.podAnnotations }}
         {{ $key }}: {{ $value | quote }}
-        {{- end }}   
+        {{- end }}
     spec:
+      {{- if .Values.priorityClassName }}
+      priorityClassName: {{ .Values.priorityClassName | quote }}
+      {{- end }}
+      {{- if .Values.image.pullSecrets }}
+      imagePullSecrets:
+        {{ toYaml .Values.image.pullSecrets | indent 8 | trim }}
+      {{- end }}
       initContainers:
         {{- if .Values.extraInitContainers }}
         {{ tpl .Values.extraInitContainers . | indent 8 | trim }}
-        {{- end }}    
+        {{- end }}
       containers:
       - name: {{ .Chart.Name }}
         image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
         imagePullPolicy: {{ .Values.image.pullPolicy }}
         env:
+        - name: LC_ALL
+          value: C.UTF-8
         - name: ZEEBE_BROKER_CLUSTER_CLUSTERNAME
           value: {{ tpl .Values.global.zeebe . }}
         - name: ZEEBE_LOG_LEVEL
@@ -58,30 +67,38 @@ spec:
         {{- if not .Values.global.elasticsearch.disableExporter }}
         - name: ZEEBE_BROKER_EXPORTERS_ELASTICSEARCH_CLASSNAME
           value: "io.camunda.zeebe.exporter.ElasticsearchExporter"
+        {{- if .Values.global.elasticsearch.url }}
+        - name: ZEEBE_BROKER_EXPORTERS_ELASTICSEARCH_ARGS_URL
+          value: {{ .Values.global.elasticsearch.url | quote }}
+        {{- else }}
         - name: ZEEBE_BROKER_EXPORTERS_ELASTICSEARCH_ARGS_URL
           value: "http://{{ .Values.global.elasticsearch.host }}:{{ .Values.global.elasticsearch.port }}"
+        {{- end }}
         {{- end }}
         - name: ZEEBE_BROKER_NETWORK_COMMANDAPI_PORT
           value: {{ .Values.serviceCommandPort  | quote }}
         - name: ZEEBE_BROKER_NETWORK_INTERNALAPI_PORT
           value: {{  .Values.serviceInternalPort | quote }}
         - name: ZEEBE_BROKER_NETWORK_MONITORINGAPI_PORT
-          value: {{  .Values.serviceHttpPort | quote }}         
+          value: {{  .Values.serviceHttpPort | quote }}
         - name: K8S_POD_NAME
           valueFrom:
             fieldRef:
-              fieldPath: metadata.name              
+              fieldPath: metadata.name
         - name: JAVA_TOOL_OPTIONS
           value: {{ .Values.JavaOpts | quote }}
-      {{- if .Values.envTemplated }}      
+      {{- if .Values.envTemplated }}
         {{- range $key, $value := .Values.envTemplated }}
         - name: {{ $key }}
           value: {{ tpl ($value | toString) $ }}
         {{- end }}
-      {{- end }}   
+      {{- end }}
       {{- if .Values.env }}
         {{ toYaml .Values.env | indent 8 | trim }}
       {{- end }}
+        {{- if .Values.command}}
+        command: {{ .Values.command }}
+        {{- end }}
         ports:
         - containerPort: {{ .Values.serviceHttpPort  }}
           name: {{ default "http" .Values.serviceHttpName  }}
@@ -97,33 +114,41 @@ spec:
           successThreshold: {{ .Values.readinessProbe.successThreshold }}
           timeoutSeconds: {{ .Values.readinessProbe.timeoutSeconds }}
         resources:
-          {{- toYaml .Values.resources | nindent 12 }}
+          {{- toYaml .Values.resources | nindent 10 }}
         volumeMounts:
-        {{- if or .Values.zeebeCfg .Values.log4j2 }}
-        - name: config-broker
-          mountPath: /usr/local/zeebe/configmaps
-        {{- end }}
-        - name: config-startup
-          mountPath: /usr/local/bin
+        - name: config
+          mountPath: /usr/local/zeebe/config/application.yaml
+          subPath: application.yaml
+        - name: config
+          mountPath: /usr/local/bin/startup.sh
+          subPath: startup.sh
         - name: data
           mountPath: /usr/local/zeebe/data
         - name: exporters
           mountPath: /exporters
-        securityContext:
-          {{ toYaml .Values.podSecurityContext | indent 10 | trim }}
-      volumes:
-        {{- if or .Values.zeebeCfg .Values.log4j2 }}
-      - name: config-broker
-        configMap:
-          name: {{ include "zeebe-cluster.fullname" . }}-broker
-          defaultMode: 0744
+        {{- if .Values.log4j2 }}
+        - name: config
+          mountPath: /usr/local/zeebe/config/log4j2.xml
+          subPath: broker-log4j2.xml
         {{- end }}
-      - name: config-startup
+        {{- if .Values.extraVolumeMounts}}
+        {{ .Values.extraVolumeMounts | toYaml | nindent 8 }}
+        {{- end }}
+        securityContext:
+          {{ toYaml .Values.podSecurityContext | indent 12 | trim }}
+      volumes:
+      - name: config
         configMap:
-          name: {{ include "zeebe-cluster.fullname" . }}-startup
+          name: {{ include "zeebe-cluster.fullname" . }}
           defaultMode: 0744
       - name: exporters
-        emptyDir: {}    
+        emptyDir: {}
+      {{- if .Values.extraVolumes}}
+      {{ .Values.extraVolumes | toYaml | nindent 6 }}
+      {{- end }}
+      {{- if .Values.serviceAccount.name }}
+      serviceAccountName: {{ .Values.serviceAccount.name }}
+      {{- end }}
 {{- with .Values.nodeSelector }}
       nodeSelector:
 {{ toYaml . | indent 8 }}
@@ -134,13 +159,6 @@ spec:
 {{- end }}
 {{- with .Values.tolerations }}
       tolerations:
-{{ toYaml . | indent 8 }}
-{{- end }}
-{{- if .Values.serviceAccount.create}}
-      serviceAccountName: {{ include "zeebe-cluster.names.broker" . }}
-{{- end }}
-{{- with .Values.securityContext }}
-      securityContext:
 {{ toYaml . | indent 8 }}
 {{- end }}
   volumeClaimTemplates:
