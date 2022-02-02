@@ -147,9 +147,6 @@ spec:
       {{- if .Values.extraVolumes}}
       {{ .Values.extraVolumes | toYaml | nindent 6 }}
       {{- end }}
-      {{- if .Values.serviceAccount.name }}
-      serviceAccountName: {{ .Values.serviceAccount.name }}
-      {{- end }}
 {{- with .Values.nodeSelector }}
       nodeSelector:
 {{ toYaml . | indent 8 }}
