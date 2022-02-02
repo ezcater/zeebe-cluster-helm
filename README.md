@@ -1,3 +1,7 @@
+# [MERGED INTO MONO REPO](https://github.com/camunda-community-hub/camunda-cloud-helm)
+
+----------------------------------
+
 [![Community Extension](https://img.shields.io/badge/Community%20Extension-An%20open%20source%20community%20maintained%20project-FF4700)](https://github.com/camunda-community-hub/community)[![Lifecycle: Incubating](https://img.shields.io/badge/Lifecycle-Incubating-blue)](https://github.com/Camunda-Community-Hub/community/blob/main/extension-lifecycle.md#incubating-)[![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
 
 # Zeebe Cluster Helm Chart
@@ -68,6 +72,8 @@ This functionality is in beta and is subject to change. The design and code is l
 | `gateway.podDisruptionBudget.enabled`         | Create a PodDisruptionBudget for the gateway pods | `false`
 | `gateway.podDisruptionBudget.minAvailable`         | minimum number of available gateway pods for PodDisruptionBudget | `1`
 | `gateway.podDisruptionBudget.maxUnavailable`       | maximum number of unavailable gateway pods for PodDisruptionBudget |
+| `serviceType`         | The type of cluster service | `ClusterIP`
+| `serviceGatewayType`         | The type of cluster gateway service | `ClusterIP`
 | `serviceHttpPort`         | The http port used by the brokers and the gateway| `9600`
 | `serviceGatewayPort`         | The gateway port used by the gateway | `26500`
 | `serviceInternalPort`         | The internal port used by the brokers and the gateway | `26502`
@@ -131,4 +137,37 @@ elasticsearch:
   imageTag: <YOUR VERSION HERE>
 kibana:
   enabled: false
+```
+
+## Development
+
+For development purpose you might want to deploy and test the charts without creating a new release. In order to do this you can run the following:
+
+```sh
+ helm install <RELEASENAME> charts/zeebe-cluster-helm/
+```
+
+If you see errors like:
+
+```sh
+Error: found in Chart.yaml, but missing in charts/ directory: elasticsearch, kibana, kube-prometheus-stack
+```
+
+Then you need to download the depenencies first. You can do this via:
+
+```sh
+$ helm dependency update charts/zeebe-cluster-helm/
+Getting updates for unmanaged Helm repositories...
+...Successfully got an update from the "https://helm.elastic.co" chart repository
+...Successfully got an update from the "https://helm.elastic.co" chart repository
+...Successfully got an update from the "https://prometheus-community.github.io/helm-charts" chart repository
+Hang tight while we grab the latest from your chart repositories...
+...Successfully got an update from the "zeebe" chart repository
+...Successfully got an update from the "stable" chart repository
+Update Complete. ⎈Happy Helming!⎈
+Saving 3 charts
+Downloading elasticsearch from repo https://helm.elastic.co
+Downloading kibana from repo https://helm.elastic.co
+Downloading kube-prometheus-stack from repo https://prometheus-community.github.io/helm-charts
+Deleting outdated charts
 ```

@@ -10,7 +10,7 @@ global:
 
 image:
   repository: camunda/zeebe
-  tag: 1.0.0
+  tag: 1.1.2
   pullPolicy: IfNotPresent
 
 clusterSize: "3"
@@ -54,11 +54,11 @@ gateway:
 
 elasticsearch:
   enabled: true
-  imageTag: 6.8.5
+  imageTag: 7.13.2
 
 kibana:
   enabled: false
-  imageTag: 6.8.5
+  imageTag: 7.13.2
 
 prometheus:
   enabled: false
@@ -75,6 +75,7 @@ JavaOpts: >-
 labels:
   app: zeebe    
 serviceType: ClusterIP
+serviceGatewayType: ClusterIP
 serviceHttpPort: 9600
 serviceGatewayPort: 26500    
 serviceCommandPort: 26501     
