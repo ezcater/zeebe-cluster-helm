@@ -5,7 +5,7 @@ metadata:
   labels:
     {{- include "zeebe-cluster.labels.gateway" . | nindent 4 }}
   annotations:
-      {{- range $key, $value := .Values.annotations }}
+      {{- range $key, $value := .Values.gateway.annotations }}
       {{ $key }}: {{ $value | quote }}
       {{- end }}
 spec:
@@ -25,6 +25,13 @@ spec:
         {{ $key }}: {{ $value | quote }}
         {{- end }}
     spec:
+      {{- if .Values.gateway.priorityClassName }}
+      priorityClassName: {{ .Values.gateway.priorityClassName | quote }}
+      {{- end }}
+      {{- if .Values.image.pullSecrets }}
+      imagePullSecrets:
+        {{ toYaml .Values.image.pullSecrets | indent 8 | trim }}
+      {{- end }}
       containers:
         - name: {{ .Chart.Name }}
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
@@ -74,6 +81,9 @@ spec:
               mountPath: /usr/local/zeebe/config/log4j2.xml
               subPath: gateway-log4j2.xml
             {{- end }}
+            {{- if .Values.extraGatewayVolumeMounts}}
+            {{ .Values.extraGatewayVolumeMounts | toYaml | nindent 12 }}
+            {{- end }}
           securityContext:
             {{ toYaml .Values.gateway.podSecurityContext | indent 12 | trim }}
           readinessProbe:
@@ -91,6 +101,9 @@ spec:
           configMap:
             name: {{ include "zeebe-cluster.fullname" . }}-gateway
             defaultMode: 0744
+        {{- end }}
+        {{- if .Values.extraGatewayVolumes}}
+        {{ .Values.extraGatewayVolumes | toYaml | nindent 8 }}
         {{- end }}
 {{- with .Values.gateway.nodeSelector }}
       nodeSelector:
