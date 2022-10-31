@@ -26,6 +26,7 @@ cpuThreadCount: "2"
 ioThreadCount: "2"
 pvcSize: "10Gi"
 pvcAccessModes: [ "ReadWriteOnce" ]
+pvcStorageClassName: "gp3-retain"
 env: []
 logLevel: info
 
