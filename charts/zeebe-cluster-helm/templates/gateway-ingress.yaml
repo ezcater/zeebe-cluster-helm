@@ -12,15 +12,21 @@ metadata:
     {{- toYaml .Values.gateway.ingress.annotations | nindent 4 }}
 spec:
   rules:
-  - host: {{ .Values.gateway.ingress.hostName }}
+  - host: zeebe-blue-dev1.staging-ezcater.net
     http:
       paths:
       - backend:
-          serviceName: {{ include "zeebe-cluster.names.gateway" . }}
-          servicePort: {{ .Values.serviceHttpPort }}
+          service:
+            name: {{ include "zeebe-cluster.names.gateway" . }}
+            port:
+              number: {{ .Values.serviceHttpPort }}
         path: /
+        pathType: ImplementationSpecific
       - backend:
-          serviceName: {{ include "zeebe-cluster.names.gateway" . }}
-          servicePort: {{ .Values.serviceGatewayPort }}
+          service:
+            name: {{ include "zeebe-cluster.names.gateway" . }}
+            port:
+              number: {{ .Values.serviceGatewayPort }}
         path: /
+        pathType: ImplementationSpecific
 {{ end }}
