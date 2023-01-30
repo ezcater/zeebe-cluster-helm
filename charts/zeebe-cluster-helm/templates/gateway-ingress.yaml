@@ -1,5 +1,5 @@
 {{ if .Values.gateway.ingress.enabled }}
-apiVersion: networking.k8s.io/v1beta1
+apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
   name: {{ include "zeebe-cluster.names.gateway" . }}
@@ -16,11 +16,17 @@ spec:
     http:
       paths:
       - backend:
-          serviceName: {{ include "zeebe-cluster.names.gateway" . }}
-          servicePort: {{ .Values.serviceHttpPort }}
+          service:
+            name: {{ include "zeebe-cluster.names.gateway" . }}
+            port:
+              number: {{ .Values.serviceHttpPort }}
         path: /
+        pathType: ImplementationSpecific
       - backend:
-          serviceName: {{ include "zeebe-cluster.names.gateway" . }}
-          servicePort: {{ .Values.serviceGatewayPort }}
+          service:
+            name: {{ include "zeebe-cluster.names.gateway" . }}
+            port:
+              number: {{ .Values.serviceGatewayPort }}
         path: /
+        pathType: ImplementationSpecific
 {{ end }}
