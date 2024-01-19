@@ -55,7 +55,7 @@ gateway:
       drop:
         - ALL
   serviceAccount:
-    create: true
+    create: false
     name: ""
     annotations: {}
   rbac:
@@ -120,7 +120,7 @@ podSecurityContext:
     drop:
       - ALL
 serviceAccount:
-  create: true
+  create: false
   name: ""
   annotations: {}
 rbac:
